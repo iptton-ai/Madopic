@@ -1080,9 +1080,9 @@ function zoomOut() {
 }
 
 function applyZoom() {
-    previewContent.className = 'preview-content';
+    window.previewContent.className = 'preview-content';
     if (currentZoom !== 100) {
-        previewContent.classList.add(`zoom-${currentZoom}`);
+        window.previewContent.classList.add(`zoom-${currentZoom}`);
     }
     updateZoomDisplay();
 }
