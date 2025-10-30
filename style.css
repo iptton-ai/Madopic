@@ -725,13 +725,13 @@ body {
 
 .preset-backgrounds {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 }
 
 .bg-preset {
-    width: 60px;
-    height: 40px;
+    width: 70px;
+    height: 45px;
     border-radius: 8px;
     cursor: pointer;
     border: 3px solid transparent;
@@ -778,6 +778,493 @@ body {
 
 .bg-preset[data-bg="gradient8"] {
     background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.bg-preset[data-bg="atomic-cyber"] {
+    background: linear-gradient(135deg, #0f0e23 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #00d4ff 100%);
+}
+
+.bg-preset[data-bg="atomic-punk"] {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #fdc830 50%, #4ecdc4 75%, #00b4d8 100%);
+}
+
+.bg-preset[data-bg="steampunk"] {
+    background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #8b6914 50%, #cd853f 75%, #daa520 100%);
+}
+
+/* 原子赛博主题特效 */
+.markdown-poster.atomic-cyber-theme {
+    background: linear-gradient(135deg, #0f0e23 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #00d4ff 100%) !important;
+    position: relative;
+}
+
+.markdown-poster.atomic-cyber-theme::before {
+    background: radial-gradient(circle at 30% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(138, 43, 226, 0.12) 0%, transparent 50%);
+}
+
+.markdown-poster.atomic-cyber-theme::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 212, 255, 0.03) 0px,
+            rgba(0, 212, 255, 0.03) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content {
+    background: rgba(15, 14, 35, 0.85) !important;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: 
+        0 0 20px rgba(0, 212, 255, 0.3),
+        0 0 40px rgba(138, 43, 226, 0.2),
+        inset 0 0 60px rgba(0, 212, 255, 0.05);
+    position: relative;
+    z-index: 2;
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content h1,
+.markdown-poster.atomic-cyber-theme .poster-content h2,
+.markdown-poster.atomic-cyber-theme .poster-content h3 {
+    color: #00d4ff;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content p,
+.markdown-poster.atomic-cyber-theme .poster-content li {
+    color: #e0e7ff;
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content a {
+    color: #00d4ff;
+    border-bottom-color: #00d4ff;
+    text-shadow: 0 0 5px rgba(0, 212, 255, 0.3);
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content code {
+    background: rgba(0, 212, 255, 0.15);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content pre {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content blockquote {
+    border-left-color: #00d4ff;
+    background: rgba(0, 212, 255, 0.08);
+    color: #cbd5e1;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content strong {
+    color: #00d4ff;
+    font-weight: 700;
+}
+
+.markdown-poster.atomic-cyber-theme .poster-content em {
+    color: #8b5cf6;
+}
+
+.markdown-poster.atomic-cyber-theme .madopic-card {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(138, 43, 226, 0.15) 100%);
+    border-color: rgba(0, 212, 255, 0.4);
+    box-shadow: 
+        0 4px 20px rgba(0, 212, 255, 0.2),
+        0 0 30px rgba(138, 43, 226, 0.15);
+}
+
+.markdown-poster.atomic-cyber-theme .madopic-card:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(138, 43, 226, 0.2) 100%);
+    border-color: rgba(0, 212, 255, 0.6);
+    box-shadow: 
+        0 8px 32px rgba(0, 212, 255, 0.3),
+        0 0 40px rgba(138, 43, 226, 0.2);
+}
+
+/* 原子朋克主题特效 */
+.markdown-poster.atomic-punk-theme {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #fdc830 50%, #4ecdc4 75%, #00b4d8 100%) !important;
+    position: relative;
+}
+
+.markdown-poster.atomic-punk-theme::before {
+    background: radial-gradient(circle at 20% 30%, rgba(247, 147, 30, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(78, 205, 196, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(253, 200, 48, 0.15) 0%, transparent 60%);
+}
+
+.markdown-poster.atomic-punk-theme::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 107, 53, 0.03) 0px,
+            rgba(255, 107, 53, 0.03) 2px,
+            transparent 2px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            rgba(78, 205, 196, 0.03) 0px,
+            rgba(78, 205, 196, 0.03) 2px,
+            transparent 2px,
+            transparent 4px
+        );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content {
+    background: rgba(255, 253, 247, 0.95) !important;
+    border: 2px solid rgba(255, 107, 53, 0.4);
+    box-shadow: 
+        0 0 30px rgba(247, 147, 30, 0.4),
+        0 0 60px rgba(78, 205, 196, 0.3),
+        inset 0 0 80px rgba(253, 200, 48, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content h1 {
+    color: #ff6b35;
+    text-shadow: 
+        2px 2px 0px rgba(247, 147, 30, 0.3),
+        0 0 20px rgba(255, 107, 53, 0.4);
+    font-weight: 800;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content h2 {
+    color: #f7931e;
+    text-shadow: 0 0 15px rgba(247, 147, 30, 0.3);
+    font-weight: 700;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content h3 {
+    color: #00b4d8;
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    font-weight: 600;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content p,
+.markdown-poster.atomic-punk-theme .poster-content li {
+    color: #2d3748;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content a {
+    color: #ff6b35;
+    border-bottom-color: #ff6b35;
+    text-shadow: 0 0 8px rgba(255, 107, 53, 0.2);
+    font-weight: 600;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content a:hover {
+    color: #f7931e;
+    border-bottom-color: #f7931e;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content code {
+    background: rgba(253, 200, 48, 0.2);
+    color: #d97706;
+    border: 1px solid rgba(247, 147, 30, 0.3);
+    box-shadow: 0 0 8px rgba(253, 200, 48, 0.2);
+    font-weight: 600;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content pre {
+    background: rgba(45, 55, 72, 0.9);
+    border: 2px solid rgba(78, 205, 196, 0.4);
+    box-shadow: 
+        inset 0 0 30px rgba(78, 205, 196, 0.1),
+        0 0 20px rgba(78, 205, 196, 0.2);
+}
+
+.markdown-poster.atomic-punk-theme .poster-content pre code {
+    color: #4ecdc4;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content blockquote {
+    border-left-color: #ff6b35;
+    background: rgba(255, 107, 53, 0.08);
+    color: #4a5568;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.1);
+}
+
+.markdown-poster.atomic-punk-theme .poster-content strong {
+    color: #ff6b35;
+    font-weight: 800;
+}
+
+.markdown-poster.atomic-punk-theme .poster-content em {
+    color: #00b4d8;
+    font-style: italic;
+}
+
+.markdown-poster.atomic-punk-theme .madopic-card {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(253, 200, 48, 0.12) 100%);
+    border-color: rgba(247, 147, 30, 0.4);
+    box-shadow: 
+        0 4px 20px rgba(255, 107, 53, 0.2),
+        0 0 30px rgba(253, 200, 48, 0.15);
+}
+
+.markdown-poster.atomic-punk-theme .madopic-card:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.18) 0%, rgba(253, 200, 48, 0.18) 100%);
+    border-color: rgba(247, 147, 30, 0.6);
+    box-shadow: 
+        0 8px 32px rgba(255, 107, 53, 0.3),
+        0 0 40px rgba(253, 200, 48, 0.2);
+}
+
+.markdown-poster.atomic-punk-theme .madopic-card .card-title {
+    color: #ff6b35;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+}
+
+.markdown-poster.atomic-punk-theme .madopic-card .card-content {
+    color: #2d3748;
+}
+
+/* 蒸汽朋克主题特效 */
+.markdown-poster.steampunk-theme {
+    background: linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #8b6914 50%, #cd853f 75%, #daa520 100%) !important;
+    position: relative;
+    font-family: 'Orbitron', 'Noto Sans Mono CJK SC', 'Sarasa Mono SC', 'Microsoft YaHei UI', monospace;
+}
+
+.markdown-poster.steampunk-theme::before {
+    background: 
+        radial-gradient(circle at 25% 40%, rgba(205, 133, 63, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 75% 60%, rgba(139, 105, 20, 0.15) 0%, transparent 50%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(139,105,20,0.1)" stroke-width="2"/><circle cx="50" cy="50" r="30" fill="none" stroke="rgba(205,133,63,0.1)" stroke-width="1"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(218,165,32,0.1)" stroke-width="1"/></svg>');
+    background-size: auto, auto, 200px 200px;
+}
+
+.markdown-poster.steampunk-theme::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(
+            90deg,
+            rgba(139, 105, 20, 0.05) 0px,
+            rgba(139, 105, 20, 0.05) 1px,
+            transparent 1px,
+            transparent 10px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            rgba(139, 105, 20, 0.05) 0px,
+            rgba(139, 105, 20, 0.05) 1px,
+            transparent 1px,
+            transparent 10px
+        );
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+}
+
+.markdown-poster.steampunk-theme .poster-content {
+    background: rgba(60, 48, 38, 0.92) !important;
+    border: 3px solid #8b6914;
+    box-shadow: 
+        0 0 0 1px #cd853f,
+        0 0 30px rgba(139, 105, 20, 0.5),
+        0 0 60px rgba(205, 133, 63, 0.3),
+        inset 0 0 100px rgba(218, 165, 32, 0.08);
+    position: relative;
+    z-index: 2;
+    font-family: 'Orbitron', 'Noto Sans Mono CJK SC', 'Sarasa Mono SC', 'Microsoft YaHei UI', monospace;
+}
+
+.markdown-poster.steampunk-theme .poster-content * {
+    font-family: 'Orbitron', 'Noto Sans Mono CJK SC', 'Sarasa Mono SC', 'Microsoft YaHei UI', monospace !important;
+}
+
+.markdown-poster.steampunk-theme .poster-content h1 {
+    color: #daa520;
+    text-shadow: 
+        2px 2px 0px rgba(139, 105, 20, 0.8),
+        0 0 20px rgba(218, 165, 32, 0.6),
+        0 0 30px rgba(205, 133, 63, 0.4);
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #8b6914;
+    padding-bottom: 8px;
+}
+
+.markdown-poster.steampunk-theme .poster-content h2 {
+    color: #cd853f;
+    text-shadow: 
+        1px 1px 0px rgba(139, 105, 20, 0.6),
+        0 0 15px rgba(205, 133, 63, 0.4);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.markdown-poster.steampunk-theme .poster-content h3 {
+    color: #daa520;
+    text-shadow: 0 0 10px rgba(218, 165, 32, 0.3);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.markdown-poster.steampunk-theme .poster-content p,
+.markdown-poster.steampunk-theme .poster-content li {
+    color: #e8dcc4;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    font-weight: 400;
+}
+
+.markdown-poster.steampunk-theme .poster-content a {
+    color: #daa520;
+    border-bottom: 2px solid #8b6914;
+    text-shadow: 0 0 8px rgba(218, 165, 32, 0.3);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.markdown-poster.steampunk-theme .poster-content a:hover {
+    color: #cd853f;
+    border-bottom-color: #cd853f;
+    text-shadow: 0 0 12px rgba(205, 133, 63, 0.5);
+}
+
+.markdown-poster.steampunk-theme .poster-content code {
+    background: rgba(139, 105, 20, 0.3);
+    color: #daa520;
+    border: 2px solid #8b6914;
+    box-shadow: 
+        inset 0 0 10px rgba(0, 0, 0, 0.3),
+        0 0 8px rgba(139, 105, 20, 0.2);
+    font-weight: 600;
+    padding: 3px 8px;
+    letter-spacing: 0.5px;
+}
+
+.markdown-poster.steampunk-theme .poster-content pre {
+    background: rgba(28, 20, 13, 0.95);
+    border: 3px double #8b6914;
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(139, 105, 20, 0.3);
+    padding: 20px;
+}
+
+.markdown-poster.steampunk-theme .poster-content pre code {
+    color: #cd853f;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    text-shadow: 0 0 5px rgba(205, 133, 63, 0.3);
+}
+
+.markdown-poster.steampunk-theme .poster-content blockquote {
+    border-left: 4px solid #8b6914;
+    background: rgba(139, 105, 20, 0.15);
+    color: #d4c5a9;
+    box-shadow: 
+        inset 0 0 20px rgba(139, 105, 20, 0.1),
+        0 0 15px rgba(139, 105, 20, 0.1);
+    font-style: italic;
+    padding: 16px 20px;
+}
+
+.markdown-poster.steampunk-theme .poster-content strong {
+    color: #daa520;
+    font-weight: 700;
+    text-shadow: 0 0 5px rgba(218, 165, 32, 0.3);
+}
+
+.markdown-poster.steampunk-theme .poster-content em {
+    color: #cd853f;
+    font-style: italic;
+}
+
+.markdown-poster.steampunk-theme .poster-content table {
+    border: 2px solid #8b6914;
+}
+
+.markdown-poster.steampunk-theme .poster-content table th {
+    background: rgba(139, 105, 20, 0.3);
+    color: #daa520;
+    border: 1px solid #8b6914;
+    font-weight: 700;
+}
+
+.markdown-poster.steampunk-theme .poster-content table td {
+    border: 1px solid #8b6914;
+    color: #e8dcc4;
+}
+
+.markdown-poster.steampunk-theme .madopic-card {
+    background: linear-gradient(135deg, rgba(139, 105, 20, 0.2) 0%, rgba(205, 133, 63, 0.2) 100%);
+    border: 2px solid #8b6914;
+    box-shadow: 
+        0 0 0 1px #cd853f,
+        0 4px 20px rgba(139, 105, 20, 0.3),
+        0 0 30px rgba(205, 133, 63, 0.2);
+}
+
+.markdown-poster.steampunk-theme .madopic-card:hover {
+    background: linear-gradient(135deg, rgba(139, 105, 20, 0.3) 0%, rgba(205, 133, 63, 0.3) 100%);
+    border-color: #cd853f;
+    box-shadow: 
+        0 0 0 1px #daa520,
+        0 8px 32px rgba(139, 105, 20, 0.4),
+        0 0 40px rgba(205, 133, 63, 0.3);
+}
+
+.markdown-poster.steampunk-theme .madopic-card .card-title {
+    color: #daa520;
+    text-shadow: 0 0 10px rgba(218, 165, 32, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.markdown-poster.steampunk-theme .madopic-card .card-content {
+    color: #e8dcc4;
+}
+
+.markdown-poster.steampunk-theme .poster-content ul,
+.markdown-poster.steampunk-theme .poster-content ol {
+    color: #e8dcc4;
+}
+
+.markdown-poster.steampunk-theme .poster-content img {
+    border: 3px solid #8b6914;
+    box-shadow: 
+        0 0 0 1px #cd853f,
+        0 0 20px rgba(139, 105, 20, 0.3);
+    filter: sepia(0.2) contrast(1.1);
 }
 
 .color-inputs {

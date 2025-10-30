@@ -444,7 +444,10 @@ const backgroundPresets = {
     gradient5: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     gradient6: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
     gradient7: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    gradient8: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+    gradient8: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    'atomic-cyber': 'linear-gradient(135deg, #0f0e23 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #00d4ff 100%)',
+    'atomic-punk': 'linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #fdc830 50%, #4ecdc4 75%, #00b4d8 100%)',
+    'steampunk': 'linear-gradient(135deg, #2c1810 0%, #3d2817 25%, #8b6914 50%, #cd853f 75%, #daa520 100%)'
 };
 
 // DOM 元素
@@ -819,6 +822,14 @@ async function updateXhsMultiPagePreview(markdownText) {
         posterDiv.style.padding = `${currentPadding}px`;
         posterDiv.style.position = 'relative';
         posterDiv.style.margin = '0';
+        // 应用主题类
+        if (currentBackground === 'atomic-cyber') {
+            posterDiv.classList.add('atomic-cyber-theme');
+        } else if (currentBackground === 'atomic-punk') {
+            posterDiv.classList.add('atomic-punk-theme');
+        } else if (currentBackground === 'steampunk') {
+            posterDiv.classList.add('steampunk-theme');
+        }
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'poster-content';
@@ -895,6 +906,16 @@ async function updateSinglePagePreview(markdownText) {
         window.markdownPoster.style.padding = `${currentPadding}px`;
         window.markdownPoster.style.boxSizing = 'border-box';
         window.markdownPoster.style.display = 'block';
+        // 移除所有主题类
+        window.markdownPoster.classList.remove('atomic-cyber-theme', 'atomic-punk-theme', 'steampunk-theme');
+        // 应用当前主题
+        if (currentBackground === 'atomic-cyber') {
+            window.markdownPoster.classList.add('atomic-cyber-theme');
+        } else if (currentBackground === 'atomic-punk') {
+            window.markdownPoster.classList.add('atomic-punk-theme');
+        } else if (currentBackground === 'steampunk') {
+            window.markdownPoster.classList.add('steampunk-theme');
+        }
         
         // 确保内容容器可见
         window.posterContent.style.display = 'block';
@@ -1184,11 +1205,31 @@ function applyBackground(backgroundCSS) {
         const allPosters = document.querySelectorAll('.markdown-poster');
         allPosters.forEach(poster => {
             poster.style.background = backgroundCSS;
+            // 移除所有主题类
+            poster.classList.remove('atomic-cyber-theme', 'atomic-punk-theme', 'steampunk-theme');
+            // 应用当前主题
+            if (currentBackground === 'atomic-cyber') {
+                poster.classList.add('atomic-cyber-theme');
+            } else if (currentBackground === 'atomic-punk') {
+                poster.classList.add('atomic-punk-theme');
+            } else if (currentBackground === 'steampunk') {
+                poster.classList.add('steampunk-theme');
+            }
         });
     } else {
         // 单页模式
         if (window.markdownPoster) {
             window.markdownPoster.style.background = backgroundCSS;
+            // 移除所有主题类
+            window.markdownPoster.classList.remove('atomic-cyber-theme', 'atomic-punk-theme', 'steampunk-theme');
+            // 应用当前主题
+            if (currentBackground === 'atomic-cyber') {
+                window.markdownPoster.classList.add('atomic-cyber-theme');
+            } else if (currentBackground === 'atomic-punk') {
+                window.markdownPoster.classList.add('atomic-punk-theme');
+            } else if (currentBackground === 'steampunk') {
+                window.markdownPoster.classList.add('steampunk-theme');
+            }
         }
     }
 }
@@ -1300,6 +1341,16 @@ function setupSliders() {
 async function createExactExportNode() {
     const clone = window.markdownPoster.cloneNode(true);
     clone.id = 'madopic-export-poster';
+    // 确保主题类被复制
+    if (window.markdownPoster.classList.contains('atomic-cyber-theme')) {
+        clone.classList.add('atomic-cyber-theme');
+    }
+    if (window.markdownPoster.classList.contains('atomic-punk-theme')) {
+        clone.classList.add('atomic-punk-theme');
+    }
+    if (window.markdownPoster.classList.contains('steampunk-theme')) {
+        clone.classList.add('steampunk-theme');
+    }
     const mpComputed = getComputedStyle(window.markdownPoster);
     // 使用原始宽度，忽略预览缩放
     const baseWidth = currentWidth || 640;
@@ -1634,6 +1685,16 @@ async function createExactExportNodeForPage(pageMarkdown, pageIndex) {
     // 创建克隆节点
     const clone = markdownPoster.cloneNode(false);
     clone.id = `madopic-export-poster-page-${pageIndex}`;
+    // 确保主题类被复制
+    if (markdownPoster.classList.contains('atomic-cyber-theme')) {
+        clone.classList.add('atomic-cyber-theme');
+    }
+    if (markdownPoster.classList.contains('atomic-punk-theme')) {
+        clone.classList.add('atomic-punk-theme');
+    }
+    if (markdownPoster.classList.contains('steampunk-theme')) {
+        clone.classList.add('steampunk-theme');
+    }
     
     // 创建内容容器
     const contentDiv = document.createElement('div');
