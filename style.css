@@ -1220,3 +1220,58 @@ select {
 .madopic-card.card-error .card-title::before {
     content: '❌';
 }
+
+/* 分页符指示器样式 */
+.page-break-indicator {
+    margin: 20px 0;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+    border: 2px dashed rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* 页码标签样式 */
+.page-number-label {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 小红书多页预览容器样式调整 */
+body[data-mode="xhs"] .preview-container,
+.preview-container.xhs-multi-page {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: flex-start; /* 从顶部开始，尊重 padding-top */
+    padding-top: 40px;
+}
+
+/* 小红书模式下每个页面的包装 */
+body[data-mode="xhs"] .preview-content,
+.preview-content.xhs-page {
+    position: relative;
+    margin: 0;
+}
+
+/* 小红书多页模式下，移除 markdown-poster 的 margin，避免与容器顶部对齐问题 */
+.preview-content.xhs-page .markdown-poster {
+    margin: 0;
+}

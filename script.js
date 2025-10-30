@@ -12,22 +12,18 @@ class MathRenderer {
     checkKaTeXAvailability() {
         this.isKaTeXLoaded = typeof katex !== 'undefined' && typeof renderMathInElement !== 'undefined';
         if (!this.isKaTeXLoaded) {
-            console.warn('KaTeX not loaded. Math formulas will not be rendered.');
         } else {
             // 检查mhchem扩展是否可用
             const hasMhchem = typeof katex.__defineMacro !== 'undefined' || 
                               (window.katex && window.katex.__plugins && window.katex.__plugins['mhchem']);
             if (hasMhchem) {
-                console.log('KaTeX with mhchem extension loaded successfully');
             } else {
-                console.warn('KaTeX loaded but mhchem extension may not be available');
             }
         }
     }
 
     renderMath(element) {
         if (!this.isKaTeXLoaded) {
-            console.warn('KaTeX not available for math rendering');
             return;
         }
 
@@ -69,7 +65,6 @@ class MathRenderer {
                 displayMode: false
             });
         } catch (error) {
-            console.error('Math rendering error:', error);
             this.showMathError(element, error.message);
         }
     }
@@ -163,19 +158,15 @@ class DiagramRenderer {
         if (this.isMermaidLoaded) {
             try {
                 mermaid.initialize(this.mermaidConfig);
-                console.log('Mermaid initialized successfully');
             } catch (error) {
-                console.error('Mermaid initialization error:', error);
                 this.isMermaidLoaded = false;
             }
         } else {
-            console.warn('Mermaid not loaded. Diagrams will not be rendered.');
         }
     }
 
     async renderDiagram(element, diagramCode, diagramId) {
         if (!this.isMermaidLoaded) {
-            console.warn('Mermaid not available for diagram rendering');
             this.showDiagramError(element, 'Mermaid library not loaded');
             return;
         }
@@ -192,7 +183,6 @@ class DiagramRenderer {
             element.classList.add('mermaid-diagram');
             
         } catch (error) {
-            console.error('Diagram rendering error:', error);
             this.showDiagramError(element, error.message);
         }
     }
@@ -246,7 +236,6 @@ class DiagramRenderer {
         try {
             mermaid.initialize(this.mermaidConfig);
         } catch (error) {
-            console.error('Theme update error:', error);
         }
     }
 }
@@ -264,13 +253,11 @@ class EChartsRenderer {
     checkEChartsAvailability() {
         this.isEChartsLoaded = typeof echarts !== 'undefined';
         if (!this.isEChartsLoaded) {
-            console.warn('ECharts not loaded. ECharts diagrams will not be rendered.');
         }
     }
 
     async renderEChart(element, chartConfig, chartId) {
         if (!this.isEChartsLoaded) {
-            console.warn('ECharts not available for chart rendering');
             this.showEChartError(element, 'ECharts library not loaded');
             return;
         }
@@ -310,7 +297,6 @@ class EChartsRenderer {
             chartContainer._resizeObserver = resizeObserver;
 
         } catch (error) {
-            console.error('ECharts rendering error:', error);
             this.showEChartError(element, error.message);
         }
     }
@@ -397,7 +383,6 @@ class CardRenderer {
             try {
                 htmlContent = marked.parse(content);
             } catch (err) {
-                console.error('卡片内容Markdown解析失败: ', err);
                 htmlContent = '<p>卡片内容解析失败</p>';
             }
             
@@ -413,7 +398,6 @@ class CardRenderer {
             element.innerHTML = cardHtml;
             
         } catch (error) {
-            console.error('卡片渲染错误:', error);
             element.innerHTML = `
                 <div class="madopic-card">
                     <div class="card-content">
@@ -466,9 +450,10 @@ const backgroundPresets = {
 // DOM 元素
 const markdownInput = document.getElementById('markdownInput');
 const lineNumbersEl = document.querySelector('.line-numbers');
-const posterContent = document.getElementById('posterContent');
-const markdownPoster = document.getElementById('markdownPoster');
-const previewContent = document.getElementById('previewContent');
+// 注意：posterContent 和 markdownPoster 会在模式切换时重建，使用 window 全局引用
+window.posterContent = document.getElementById('posterContent');
+window.markdownPoster = document.getElementById('markdownPoster');
+window.previewContent = document.getElementById('previewContent');
 const backgroundPanel = document.getElementById('backgroundPanel');
 const layoutPanel = document.getElementById('layoutPanel');
 const overlay = document.getElementById('overlay');
@@ -613,49 +598,45 @@ function setMode(mode) {
             btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
         });
     }
-    // 预览区域视觉反馈（仅预览容器外层，不改导出逻辑）
-    applyPreviewModeFrame();
+    // 重新渲染预览以应用模式变化（会自动处理结构恢复和样式应用）
+    updatePreview();
 }
 
 function applyPreviewModeFrame() {
-    // 预览时根据模式设置固定可视高度（以外层 markdownPoster 的 box 包含 padding 与内容）
-    markdownPoster.dataset.mode = currentMode;
+    // 小红书模式下多页预览，不需要调整单个markdownPoster
     if (currentMode === 'xhs') {
-        // 3:4（宽:高） => 高度 = 宽度 / 3 * 4。由于 width 是含 padding 的可视宽度，这里与导出一致
-        const rect = markdownPoster.getBoundingClientRect();
-        const targetHeight = Math.round((rect.width / 3) * 4);
-        markdownPoster.style.height = `${targetHeight}px`;
-        markdownPoster.style.minHeight = `${targetHeight}px`;
-        markdownPoster.style.overflow = 'hidden'; // 超出裁掉
-
-        // 计算可用给白卡片（posterContent）的最大高度，保留上下紫色 padding
-        const mpComputed = getComputedStyle(markdownPoster);
-        const paddingTop = parseFloat(mpComputed.paddingTop) || 0;
-        const paddingBottom = parseFloat(mpComputed.paddingBottom) || 0;
-        const innerMax = Math.max(0, targetHeight - paddingTop - paddingBottom);
-        posterContent.style.maxHeight = `${innerMax}px`;
-        posterContent.style.overflow = 'hidden';
-    } else if (currentMode === 'pyq') {
+        return;
+    }
+    
+    // 确保元素存在（使用 window 引用）
+    if (!window.markdownPoster || !window.posterContent) {
+        return;
+    }
+    
+    // 预览时根据模式设置固定可视高度（以外层 markdownPoster 的 box 包含 padding 与内容）
+    window.markdownPoster.dataset.mode = currentMode;
+    
+    if (currentMode === 'pyq') {
         // 朋友圈固定比例：1290x2796 ≈ 宽:高 = 1290:2796。
         // 在保持当前外层宽度不变的前提下，按该比例计算高度。
-        const rect = markdownPoster.getBoundingClientRect();
+        const rect = window.markdownPoster.getBoundingClientRect();
         const targetHeight = Math.round(rect.width * (2796 / 1290));
-        markdownPoster.style.height = `${targetHeight}px`;
-        markdownPoster.style.minHeight = `${targetHeight}px`;
-        markdownPoster.style.overflow = 'hidden';
+        window.markdownPoster.style.height = `${targetHeight}px`;
+        window.markdownPoster.style.minHeight = `${targetHeight}px`;
+        window.markdownPoster.style.overflow = 'hidden';
 
-        const mpComputed = getComputedStyle(markdownPoster);
+        const mpComputed = getComputedStyle(window.markdownPoster);
         const paddingTop = parseFloat(mpComputed.paddingTop) || 0;
         const paddingBottom = parseFloat(mpComputed.paddingBottom) || 0;
         const innerMax = Math.max(0, targetHeight - paddingTop - paddingBottom);
-        posterContent.style.maxHeight = `${innerMax}px`;
-        posterContent.style.overflow = 'hidden';
+        window.posterContent.style.maxHeight = `${innerMax}px`;
+        window.posterContent.style.overflow = 'hidden';
     } else {
-        markdownPoster.style.height = '';
-        markdownPoster.style.minHeight = '600px';
-        markdownPoster.style.overflow = 'hidden';
-        posterContent.style.maxHeight = '';
-        posterContent.style.overflow = '';
+        window.markdownPoster.style.height = '';
+        window.markdownPoster.style.minHeight = '600px';
+        window.markdownPoster.style.overflow = 'hidden';
+        window.posterContent.style.maxHeight = '';
+        window.posterContent.style.overflow = '';
     }
 }
 
@@ -735,6 +716,11 @@ function handleToolbarAction(action) {
         case 'card':
             MarkdownHelper.insertCard();
             return;
+        case 'pagebreak':
+            // 插入分页符（用于小红书模式）
+            insertText = `\n\n---page---\n\n`;
+            cursorPos = start + insertText.length;
+            break;
         case 'empty-line':
             // 插入可在预览中可见的"Markdown 空行"占位段落
             insertText = `\n\n<p class="md-empty-line">&nbsp;</p>\n\n`;
@@ -765,6 +751,163 @@ async function updatePreview() {
         return;
     }
     
+    // 小红书模式：多页预览
+    if (currentMode === 'xhs') {
+        await updateXhsMultiPagePreview(markdownText);
+        return;
+    }
+    
+    // 其他模式：单页预览
+    await updateSinglePagePreview(markdownText);
+}
+
+// 小红书模式多页预览
+async function updateXhsMultiPagePreview(markdownText) {
+    // 检查是否包含分页符
+    const pageBreakRegex = /(?:^|\n)---page---(?:\n|$)|<!--\s*page\s*-->/gi;
+    const hasPageBreak = pageBreakRegex.test(markdownText);
+    
+    
+    let pages = [];
+    if (hasPageBreak) {
+        // 按分页符分割内容
+        pages = markdownText.split(pageBreakRegex).filter(p => p.trim());
+    } else {
+        // 自动分页
+        pages = await autoSplitContentForXhs(markdownText);
+    }
+    
+    
+    // 清空预览容器，准备显示多页
+    const previewContainer = document.getElementById('previewContainer');
+    previewContainer.innerHTML = '';
+    previewContainer.classList.add('xhs-multi-page');
+    
+    // 获取当前背景样式
+    const currentBg = (markdownPoster && markdownPoster.style.background) 
+        ? markdownPoster.style.background 
+        : backgroundPresets[currentBackground];
+    
+    // 为每一页创建独立的卡片
+    for (let i = 0; i < pages.length; i++) {
+        const pageContent = pages[i];
+        
+        // 预处理markdown
+        let processedMarkdown = mathRenderer.preprocessMath(pageContent);
+        processedMarkdown = diagramRenderer.preprocessDiagram(processedMarkdown);
+        processedMarkdown = echartsRenderer.preprocessECharts(processedMarkdown);
+        processedMarkdown = cardRenderer.preprocessCards(processedMarkdown);
+        processedMarkdown = replaceImageDataForPreview(processedMarkdown);
+        
+        // 渲染HTML
+        let htmlContent = '';
+        try {
+            htmlContent = marked.parse(processedMarkdown);
+        } catch (err) {
+            htmlContent = '<p style="color:#ef4444">渲染失败</p>';
+        }
+        
+        // 创建页面容器
+        const pageWrapper = document.createElement('div');
+        pageWrapper.className = 'preview-content xhs-page';
+        pageWrapper.id = `preview-content-${i}`;
+        
+        const posterDiv = document.createElement('div');
+        posterDiv.className = 'markdown-poster';
+        posterDiv.style.background = currentBg;
+        posterDiv.style.width = `${currentWidth}px`;
+        posterDiv.style.padding = `${currentPadding}px`;
+        posterDiv.style.position = 'relative';
+        posterDiv.style.margin = '0';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'poster-content';
+        contentDiv.innerHTML = htmlContent;
+        
+        // 添加页码标识
+        const pageLabel = document.createElement('div');
+        pageLabel.className = 'page-number-label';
+        pageLabel.textContent = `第 ${i + 1}/${pages.length} 页`;
+        
+        posterDiv.appendChild(contentDiv);
+        posterDiv.appendChild(pageLabel);
+        pageWrapper.appendChild(posterDiv);
+        previewContainer.appendChild(pageWrapper);
+        
+        // 渲染数学公式和图表
+        mathRenderer.renderMath(contentDiv);
+        await diagramRenderer.renderDiagrams(contentDiv);
+        await echartsRenderer.renderECharts(contentDiv);
+        await cardRenderer.renderCards(contentDiv);
+    }
+    
+    // 更新全局引用（指向第一页）
+    const firstPoster = previewContainer.querySelector('.markdown-poster');
+    const firstContent = previewContainer.querySelector('.poster-content');
+    if (firstPoster && firstContent) {
+        window.markdownPoster = firstPoster;
+        window.posterContent = firstContent;
+    }
+    
+    // 应用字体大小到所有页面
+    applyFontSize(currentFontSize);
+    
+    // 标记已渲染
+    if (!hasInitialPreviewRendered) {
+        hasInitialPreviewRendered = true;
+    }
+}
+
+// 单页预览（自由/朋友圈模式）
+async function updateSinglePagePreview(markdownText) {
+    // 确保使用正确的预览容器结构
+    const previewContainer = document.getElementById('previewContainer');
+    
+    // 检查是否需要重建结构（从小红书模式切换回来）
+    const needsRebuild = !window.previewContent || 
+                         !window.previewContent.querySelector('.markdown-poster') ||
+                         previewContainer.classList.contains('xhs-multi-page');
+    
+    if (needsRebuild) {
+        previewContainer.classList.remove('xhs-multi-page');
+        
+        // 清除所有 inline styles，让 CSS 类控制布局
+        previewContainer.removeAttribute('style');
+        
+        previewContainer.innerHTML = `
+            <div class="preview-content" id="previewContent">
+                <div class="markdown-poster" id="markdownPoster">
+                    <div class="poster-content" id="posterContent"></div>
+                </div>
+            </div>
+        `;
+        // 重新获取引用（重要：更新全局引用）
+        window.markdownPoster = document.getElementById('markdownPoster');
+        window.posterContent = document.getElementById('posterContent');
+        window.previewContent = document.getElementById('previewContent');
+        
+        // 获取当前背景
+        const currentBg = backgroundPresets[currentBackground] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        
+        // 重新应用背景和样式
+        window.markdownPoster.style.background = currentBg;
+        window.markdownPoster.style.width = `${currentWidth}px`;
+        window.markdownPoster.style.padding = `${currentPadding}px`;
+        window.markdownPoster.style.boxSizing = 'border-box';
+        window.markdownPoster.style.display = 'block';
+        
+        // 确保内容容器可见
+        window.posterContent.style.display = 'block';
+        window.posterContent.style.visibility = 'visible';
+        window.posterContent.style.opacity = '1';
+        
+        // 重置缓存，强制重新渲染
+        lastRenderedMarkdown = '';
+    }
+    
+    // 在渲染内容之前应用布局样式
+    applyPreviewModeFrame();
+    
     // 预处理数学公式
     let processedMarkdown = mathRenderer.preprocessMath(markdownText);
     
@@ -777,6 +920,10 @@ async function updatePreview() {
     // 预处理卡片
     processedMarkdown = cardRenderer.preprocessCards(processedMarkdown);
     
+    // 移除分页符，不显示任何内容
+    processedMarkdown = processedMarkdown.replace(/(?:^|\n)---page---(?:\n|$)/g, '\n\n');
+    processedMarkdown = processedMarkdown.replace(/<!--\s*page\s*-->/g, '');
+    
     // 替换简化的base64为完整版本进行预览
     processedMarkdown = replaceImageDataForPreview(processedMarkdown);
     
@@ -786,39 +933,40 @@ async function updatePreview() {
     }
     lastRenderedMarkdown = processedMarkdown;
 
+    
     let htmlContent = '';
     try {
         htmlContent = marked.parse(processedMarkdown);
     } catch (err) {
-        console.error('Markdown 渲染失败: ', err);
         htmlContent = '<p style="color:#ef4444">渲染失败，请检查 Markdown 内容。</p>';
     }
-    posterContent.innerHTML = htmlContent;
+    window.posterContent.innerHTML = htmlContent;
+    
     
     // 渲染数学公式
-    mathRenderer.renderMath(posterContent);
+    mathRenderer.renderMath(window.posterContent);
     
     // 渲染图表
-    await diagramRenderer.renderDiagrams(posterContent);
+    await diagramRenderer.renderDiagrams(window.posterContent);
     
     // 渲染 ECharts 图表
-    await echartsRenderer.renderECharts(posterContent);
+    await echartsRenderer.renderECharts(window.posterContent);
     
     // 渲染卡片
-    await cardRenderer.renderCards(posterContent);
+    await cardRenderer.renderCards(window.posterContent);
     
     // 确保内容容器可见
-    posterContent.style.display = 'block';
+    window.posterContent.style.display = 'block';
     
     // 重新应用当前的字体大小设置
     applyFontSize(currentFontSize);
     
     // 仅首次渲染使用淡入动画，后续输入不再触发，避免屏闪
     if (!hasInitialPreviewRendered) {
-        posterContent.style.animation = 'fadeIn 0.3s ease';
+        window.posterContent.style.animation = 'fadeIn 0.3s ease';
         hasInitialPreviewRendered = true;
     } else {
-        posterContent.style.animation = '';
+        window.posterContent.style.animation = '';
     }
 }
 
@@ -845,7 +993,8 @@ function syncLineNumbersScroll() {
 
 // 显示空内容提示
 function showEmptyPreview() {
-    posterContent.innerHTML = `
+    if (!window.posterContent) return;
+    window.posterContent.innerHTML = `
         <div class="empty-preview">
             <div class="empty-icon">
                 <i class="fab fa-markdown"></i>
@@ -994,6 +1143,11 @@ function applyBackgroundSettings() {
     }
     applyBackground(backgroundCSS);
     
+    // 小红书模式需要重新渲染以应用背景
+    if (currentMode === 'xhs') {
+        updatePreview();
+    }
+    
     closeBackgroundPanel();
     
     // 显示成功提示
@@ -1013,6 +1167,11 @@ function applyLayoutSettings() {
     currentWidth = parseInt(document.getElementById('widthSlider').value);
     applyWidth(currentWidth);
     
+    // 小红书模式需要重新渲染以应用宽度和边距
+    if (currentMode === 'xhs') {
+        updatePreview();
+    }
+    
     closeLayoutPanel();
     
     // 显示成功提示
@@ -1020,29 +1179,77 @@ function applyLayoutSettings() {
 }
 
 function applyBackground(backgroundCSS) {
-    markdownPoster.style.background = backgroundCSS;
+    // 小红书多页模式：应用到所有页面
+    if (currentMode === 'xhs') {
+        const allPosters = document.querySelectorAll('.markdown-poster');
+        allPosters.forEach(poster => {
+            poster.style.background = backgroundCSS;
+        });
+    } else {
+        // 单页模式
+        if (window.markdownPoster) {
+            window.markdownPoster.style.background = backgroundCSS;
+        }
+    }
 }
 
 function applyFontSize(fontSize) {
-    // 使用CSS变量统一管理字体大小，避免大量DOM操作
-    posterContent.style.setProperty('--dynamic-font-size', `${fontSize}px`);
-    posterContent.style.setProperty('--dynamic-h1-size', `${Math.round(fontSize * 1.75)}px`);
-    posterContent.style.setProperty('--dynamic-h2-size', `${Math.round(fontSize * 1.375)}px`);
-    posterContent.style.setProperty('--dynamic-h3-size', `${Math.round(fontSize * 1.125)}px`);
-    posterContent.style.setProperty('--dynamic-h4-size', `${Math.round(fontSize * 1.05)}px`);
-    posterContent.style.setProperty('--dynamic-h5-h6-size', `${Math.round(fontSize * 0.95)}px`);
-    posterContent.style.setProperty('--dynamic-code-size', `${Math.round(fontSize * 0.875)}px`);
-    posterContent.style.setProperty('--dynamic-quote-size', `${Math.round(fontSize * 0.95)}px`);
+    // 小红书多页模式：应用到所有页面
+    if (currentMode === 'xhs') {
+        const allPosterContents = document.querySelectorAll('.poster-content');
+        allPosterContents.forEach(content => {
+            content.style.setProperty('--dynamic-font-size', `${fontSize}px`);
+            content.style.setProperty('--dynamic-h1-size', `${Math.round(fontSize * 1.75)}px`);
+            content.style.setProperty('--dynamic-h2-size', `${Math.round(fontSize * 1.375)}px`);
+            content.style.setProperty('--dynamic-h3-size', `${Math.round(fontSize * 1.125)}px`);
+            content.style.setProperty('--dynamic-h4-size', `${Math.round(fontSize * 1.05)}px`);
+            content.style.setProperty('--dynamic-h5-h6-size', `${Math.round(fontSize * 0.95)}px`);
+            content.style.setProperty('--dynamic-code-size', `${Math.round(fontSize * 0.875)}px`);
+            content.style.setProperty('--dynamic-quote-size', `${Math.round(fontSize * 0.95)}px`);
+        });
+        return;
+    }
+    
+    // 单页模式：应用到主posterContent
+    if (!window.posterContent) return;
+    window.posterContent.style.setProperty('--dynamic-font-size', `${fontSize}px`);
+    window.posterContent.style.setProperty('--dynamic-h1-size', `${Math.round(fontSize * 1.75)}px`);
+    window.posterContent.style.setProperty('--dynamic-h2-size', `${Math.round(fontSize * 1.375)}px`);
+    window.posterContent.style.setProperty('--dynamic-h3-size', `${Math.round(fontSize * 1.125)}px`);
+    window.posterContent.style.setProperty('--dynamic-h4-size', `${Math.round(fontSize * 1.05)}px`);
+    window.posterContent.style.setProperty('--dynamic-h5-h6-size', `${Math.round(fontSize * 0.95)}px`);
+    window.posterContent.style.setProperty('--dynamic-code-size', `${Math.round(fontSize * 0.875)}px`);
+    window.posterContent.style.setProperty('--dynamic-quote-size', `${Math.round(fontSize * 0.95)}px`);
 }
 
 function applyPadding(padding) {
-    // 调整外层容器的内边距，即图片中红色箭头指向的边距
-    markdownPoster.style.padding = `${padding}px`;
+    // 小红书多页模式：应用到所有页面
+    if (currentMode === 'xhs') {
+        const allPosters = document.querySelectorAll('.markdown-poster');
+        allPosters.forEach(poster => {
+            poster.style.padding = `${padding}px`;
+        });
+    } else {
+        // 单页模式：调整外层容器的内边距
+        if (window.markdownPoster) {
+            window.markdownPoster.style.padding = `${padding}px`;
+        }
+    }
 }
 
 function applyWidth(width) {
-    // 调整预览区的整体宽度（导出图片的宽度）
-    markdownPoster.style.width = `${width}px`;
+    // 小红书多页模式：应用到所有页面
+    if (currentMode === 'xhs') {
+        const allPosters = document.querySelectorAll('.markdown-poster');
+        allPosters.forEach(poster => {
+            poster.style.width = `${width}px`;
+        });
+    } else {
+        // 单页模式：调整预览区的整体宽度（导出图片的宽度）
+        if (window.markdownPoster) {
+            window.markdownPoster.style.width = `${width}px`;
+        }
+    }
 }
 
 function setupSliders() {
@@ -1091,16 +1298,20 @@ function setupSliders() {
  * 返回被追加到 body 的节点，调用方负责移除。
  */
 async function createExactExportNode() {
-    const clone = markdownPoster.cloneNode(true);
+    const clone = window.markdownPoster.cloneNode(true);
     clone.id = 'madopic-export-poster';
-    const mpComputed = getComputedStyle(markdownPoster);
+    const mpComputed = getComputedStyle(window.markdownPoster);
+    // 使用原始宽度，忽略预览缩放
+    const baseWidth = currentWidth || 640;
+    const basePadding = currentPadding || 40;
+    
     Object.assign(clone.style, {
         position: 'fixed',
         top: '-9999px',
         left: '-9999px',
         margin: '0',
-        width: `${markdownPoster.getBoundingClientRect().width}px`,
-        padding: mpComputed.padding,
+        width: `${baseWidth}px`,
+        padding: `${basePadding}px`,
         boxSizing: 'border-box',
         background: markdownPoster.style.background || mpComputed.background,
         transform: 'none'
@@ -1110,40 +1321,21 @@ async function createExactExportNode() {
     if (inner) {
         const pcComputed = getComputedStyle(posterContent);
         inner.style.animation = 'none';
-        inner.style.width = `${posterContent.getBoundingClientRect().width}px`;
+        inner.style.width = `${baseWidth - basePadding * 2}px`;
         inner.style.padding = pcComputed.padding;
         inner.style.boxSizing = 'border-box';
         inner.style.backdropFilter = pcComputed.backdropFilter || 'none';
         inner.style.webkitBackdropFilter = pcComputed.webkitBackdropFilter || 'none';
     }
-    // 固定高度模式：小红书 3:4。导出时必须与预览一致，且裁掉超出部分
-    if (currentMode === 'xhs') {
-        const rect = markdownPoster.getBoundingClientRect();
-        const target = Math.round((rect.width / 3) * 4);
+    // 固定高度模式：朋友圈。导出时必须与预览一致，且裁掉超出部分
+    if (currentMode === 'pyq') {
+        const target = Math.round(baseWidth * (2796 / 1290));
         clone.style.height = `${target}px`;
         clone.style.minHeight = `${target}px`;
         clone.style.overflow = 'hidden';
 
-        // 同步内部白卡片最大高度，保留上下紫色 padding 作为边距
-        const mpComputed = getComputedStyle(markdownPoster);
-        const paddingTop = parseFloat(mpComputed.paddingTop) || 0;
-        const paddingBottom = parseFloat(mpComputed.paddingBottom) || 0;
-        const innerMax = Math.max(0, target - paddingTop - paddingBottom);
-        const inner = clone.querySelector('.poster-content');
-        if (inner) {
-            inner.style.maxHeight = `${innerMax}px`;
-            inner.style.overflow = 'hidden';
-        }
-    } else if (currentMode === 'pyq') {
-        const rect = markdownPoster.getBoundingClientRect();
-        const target = Math.round(rect.width * (2796 / 1290));
-        clone.style.height = `${target}px`;
-        clone.style.minHeight = `${target}px`;
-        clone.style.overflow = 'hidden';
-
-        const mpComputed = getComputedStyle(markdownPoster);
-        const paddingTop = parseFloat(mpComputed.paddingTop) || 0;
-        const paddingBottom = parseFloat(mpComputed.paddingBottom) || 0;
+        const paddingTop = basePadding;
+        const paddingBottom = basePadding;
         const innerMax = Math.max(0, target - paddingTop - paddingBottom);
         const inner = clone.querySelector('.poster-content');
         if (inner) {
@@ -1291,6 +1483,12 @@ function tryProxyImage(img) {
  * 流程：等待字体 → 克隆节点 → 读取尺寸 → html2canvas 渲染 → 透明边缘裁剪 → 触发下载 → 清理。
  */
 async function exportToPNG() {
+    // 小红书模式特殊处理：支持分页导出
+    if (currentMode === 'xhs') {
+        await exportXhsMultiPagePNG();
+        return;
+    }
+
     let exportNode = null;
     try {
         showNotification('正在生成图片...', 'info');
@@ -1322,7 +1520,6 @@ async function exportToPNG() {
             try {
                 trimmedCanvas = trimTransparentEdges(canvas);
             } catch (error) {
-                console.warn('无法裁剪透明边缘（可能包含跨域图片）:', error.message);
             }
         }
         const outputCanvas = trimmedCanvas || canvas;
@@ -1336,13 +1533,251 @@ async function exportToPNG() {
 
         showNotification('图片导出成功！', 'success');
     } catch (error) {
-        console.error('导出失败:', error);
         showNotification('导出失败，请重试', 'error');
     } finally {
         if (exportNode && exportNode.parentNode) {
             exportNode.parentNode.removeChild(exportNode);
         }
     }
+}
+
+/**
+ * 小红书模式多页导出
+ * 根据分页符或自动分页逻辑，将内容分成多张3:4比例的图片
+ */
+async function exportXhsMultiPagePNG() {
+    const exportNodes = [];
+    try {
+        showNotification('正在分析内容并生成图片...', 'info');
+        
+        // 获取当前的markdown内容
+        const markdownText = markdownInput.value.trim();
+        
+        // 检查是否包含分页符（支持 ---page--- 或 <!-- page -->）
+        const pageBreakRegex = /(?:^|\n)---page---(?:\n|$)|<!--\s*page\s*-->/gi;
+        const hasPageBreak = pageBreakRegex.test(markdownText);
+        
+        let pages = [];
+        if (hasPageBreak) {
+            // 按分页符分割内容
+            pages = markdownText.split(pageBreakRegex).filter(p => p.trim());
+        } else {
+            // 自动分页：创建临时节点测试高度
+            pages = await autoSplitContentForXhs(markdownText);
+        }
+        
+        // 为每一页创建导出节点
+        const timestamp = getFormattedTimestamp();
+        for (let i = 0; i < pages.length; i++) {
+            const pageContent = pages[i];
+            const exportNode = await createExactExportNodeForPage(pageContent, i);
+            exportNodes.push(exportNode);
+            
+            // 等待字体与渲染
+            if (document.fonts && document.fonts.ready) {
+                try { await document.fonts.ready; } catch (_) {}
+            }
+            await new Promise(r => requestAnimationFrame(r));
+            
+            const rect = exportNode.getBoundingClientRect();
+            const targetWidth = Math.ceil(rect.width);
+            const targetHeight = Math.ceil(rect.height);
+            
+            const tryScales = getExportScaleCandidates(EXPORT_SCALE);
+            const canvas = await renderWithFallbackScales(exportNode, targetWidth, targetHeight, tryScales);
+            
+            // 下载当前页
+            const link = document.createElement('a');
+            link.download = `madopic-xhs-${timestamp}-${i + 1}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 显示进度
+            showNotification(`正在导出第 ${i + 1}/${pages.length} 页...`, 'info');
+            await new Promise(r => setTimeout(r, 300)); // 稍微延迟避免下载冲突
+        }
+        
+        showNotification(`成功导出 ${pages.length} 张图片！`, 'success');
+    } catch (error) {
+        showNotification('导出失败，请重试', 'error');
+    } finally {
+        // 清理所有导出节点
+        exportNodes.forEach(node => {
+            if (node && node.parentNode) {
+                node.parentNode.removeChild(node);
+            }
+        });
+    }
+}
+
+/**
+ * 为特定页面内容创建导出节点（小红书3:4比例）
+ */
+async function createExactExportNodeForPage(pageMarkdown, pageIndex) {
+    // 预处理markdown
+    let processedMarkdown = mathRenderer.preprocessMath(pageMarkdown);
+    processedMarkdown = diagramRenderer.preprocessDiagram(processedMarkdown);
+    processedMarkdown = echartsRenderer.preprocessECharts(processedMarkdown);
+    processedMarkdown = cardRenderer.preprocessCards(processedMarkdown);
+    processedMarkdown = replaceImageDataForPreview(processedMarkdown);
+    
+    // 渲染HTML
+    let htmlContent = '';
+    try {
+        htmlContent = marked.parse(processedMarkdown);
+    } catch (err) {
+        htmlContent = '<p style="color:#ef4444">渲染失败</p>';
+    }
+    
+    // 创建克隆节点
+    const clone = markdownPoster.cloneNode(false);
+    clone.id = `madopic-export-poster-page-${pageIndex}`;
+    
+    // 创建内容容器
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'poster-content';
+    contentDiv.innerHTML = htmlContent;
+    clone.appendChild(contentDiv);
+    
+    const mpComputed = getComputedStyle(markdownPoster);
+    // 获取原始宽度（忽略预览缩放）
+    const baseWidth = currentWidth || 640;
+    
+    Object.assign(clone.style, {
+        position: 'fixed',
+        top: '-9999px',
+        left: '-9999px',
+        margin: '0',
+        width: `${baseWidth}px`,
+        padding: `${currentPadding || 40}px`,
+        boxSizing: 'border-box',
+        background: markdownPoster.style.background || mpComputed.background,
+        transform: 'none',
+        height: 'auto',
+        minHeight: '0',
+        overflow: 'visible'
+    });
+    
+    // 设置内容样式 - 不限制高度，让内容自然展开
+    const pcComputed = getComputedStyle(posterContent);
+    Object.assign(contentDiv.style, {
+        animation: 'none',
+        width: `${baseWidth - (currentPadding || 40) * 2}px`,
+        padding: pcComputed.padding,
+        boxSizing: 'border-box',
+        backdropFilter: pcComputed.backdropFilter || 'none',
+        webkitBackdropFilter: pcComputed.webkitBackdropFilter || 'none',
+        maxHeight: 'none',
+        overflow: 'visible'
+    });
+    
+    document.body.appendChild(clone);
+    
+    // 渲染数学公式、图表等
+    mathRenderer.renderMath(contentDiv);
+    
+    const mermaidContainers = contentDiv.querySelectorAll('.mermaid-container');
+    mermaidContainers.forEach((container, index) => {
+        const timestamp = Date.now();
+        const newId = `export-mermaid-${timestamp}-${pageIndex}-${index}`;
+        container.setAttribute('data-diagram-id', newId);
+    });
+    
+    await diagramRenderer.renderDiagrams(contentDiv);
+    await echartsRenderer.renderECharts(contentDiv);
+    await cardRenderer.renderCards(contentDiv);
+    
+    await prepareImagesForExport(clone);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    
+    return clone;
+}
+
+/**
+ * 自动分割内容以适应小红书3:4比例
+ * 策略：尝试按段落分割，确保每页内容不超过3:4高度
+ */
+async function autoSplitContentForXhs(markdown) {
+    // 按段落分割（保留空行）
+    const paragraphs = markdown.split(/\n\n+/);
+    const pages = [];
+    let currentPage = [];
+    
+    // 使用原始尺寸（忽略预览缩放）
+    const baseWidth = currentWidth || 640;
+    const basePadding = currentPadding || 40;
+    
+    // 创建临时测试节点
+    const testNode = document.createElement('div');
+    testNode.style.cssText = `
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
+        width: ${baseWidth}px;
+        padding: ${basePadding}px;
+        box-sizing: border-box;
+        visibility: hidden;
+    `;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'poster-content';
+    const pcComputed = getComputedStyle(posterContent);
+    contentDiv.style.cssText = `
+        width: ${baseWidth - basePadding * 2}px;
+        padding: ${pcComputed.padding};
+        box-sizing: border-box;
+    `;
+    testNode.appendChild(contentDiv);
+    document.body.appendChild(testNode);
+    
+    // 计算3:4比例的最大高度作为分页参考
+    const targetHeight = Math.round((baseWidth / 3) * 4);
+    const maxContentHeight = Math.max(0, targetHeight - basePadding * 2);
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+        const para = paragraphs[i];
+        const testContent = [...currentPage, para].join('\n\n');
+        
+        // 预处理并渲染
+        let processed = mathRenderer.preprocessMath(testContent);
+        processed = diagramRenderer.preprocessDiagram(processed);
+        processed = echartsRenderer.preprocessECharts(processed);
+        processed = cardRenderer.preprocessCards(processed);
+        processed = replaceImageDataForPreview(processed);
+        
+        try {
+            contentDiv.innerHTML = marked.parse(processed);
+        } catch (err) {
+            contentDiv.innerHTML = testContent;
+        }
+        
+        // 等待渲染完成
+        await new Promise(r => requestAnimationFrame(r));
+        
+        const contentHeight = contentDiv.scrollHeight;
+        
+        if (contentHeight > maxContentHeight && currentPage.length > 0) {
+            // 当前段落导致超出，将之前的段落作为一页
+            pages.push(currentPage.join('\n\n'));
+            currentPage = [para];
+        } else {
+            currentPage.push(para);
+        }
+    }
+    
+    // 添加最后一页
+    if (currentPage.length > 0) {
+        pages.push(currentPage.join('\n\n'));
+    }
+    
+    // 清理测试节点
+    document.body.removeChild(testNode);
+    
+    // 如果没有分页，至少返回原内容
+    return pages.length > 0 ? pages : [markdown];
 }
 
 async function exportToPDF() {
@@ -1377,7 +1812,6 @@ async function exportToPDF() {
             try {
                 trimmedCanvas = trimTransparentEdges(canvas);
             } catch (error) {
-                console.warn('无法裁剪透明边缘（可能包含跨域图片）:', error.message);
             }
         }
         const outputCanvas = trimmedCanvas || canvas;
@@ -1429,7 +1863,6 @@ async function exportToPDF() {
 
         showNotification('PDF 导出成功！', 'success');
     } catch (error) {
-        console.error('PDF 导出失败:', error);
         showNotification('PDF 导出失败，请重试', 'error');
     } finally {
         if (exportNode && exportNode.parentNode) {
@@ -1475,7 +1908,6 @@ async function exportToHTML() {
 
         showNotification('HTML 导出成功！', 'success');
     } catch (error) {
-        console.error('HTML 导出失败:', error);
         showNotification('HTML 导出失败，请重试', 'error');
     } finally {
         if (exportNode && exportNode.parentNode) {
@@ -1855,7 +2287,6 @@ function debounce(func, wait) {
 
 // ===== 错误处理 =====
 window.addEventListener('error', function(e) {
-    console.error('应用错误:', e.error);
     showNotification('应用出现错误，请刷新页面重试', 'error');
 });
 
@@ -1909,7 +2340,7 @@ const MarkdownHelper = {
     // 插入代码块
     insertCodeBlock: function(language = '') {
         const textarea = markdownInput;
-        const codeBlock = `\n\`\`\`${language}\n// 在这里输入代码\nconsole.log('Hello World!');\n\`\`\`\n`;
+        const codeBlock = `\n\`\`\`${language}\n// 在这里输入代码\n\n\`\`\`\n`;
         
         const cursorPos = textarea.selectionStart;
         const beforeText = textarea.value.substring(0, cursorPos);
@@ -2270,7 +2701,6 @@ function handleImageFile(file) {
             showNotification('图片插入成功！', 'success');
         })
         .catch(error => {
-            console.error('图片处理失败:', error);
             showNotification('图片处理失败，请重试', 'error');
         });
 }
