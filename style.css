@@ -1330,18 +1330,48 @@ select {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+
+/* 中等屏幕及以下 - 切换为上下布局，避免预览被挤压 */
+@media (max-width: 1199px) {
     .main-content {
         flex-direction: column;
     }
     
+    .editor-panel {
+        height: 45vh;
+        min-height: 300px;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .preview-panel {
+        height: 55vh;
+        min-height: 400px;
+    }
+    
+    /* 确保预览容器可以正常滚动 */
+    .preview-container {
+        overflow: auto;
+    }
+    
+    .markdown-poster {
+        width: 640px;
+        max-width: calc(100% - 40px);
+    }
+}
+
+/* 小屏幕优化 */
+@media (max-width: 768px) {
     .editor-panel,
     .preview-panel {
         height: 50vh;
+        min-height: 250px;
     }
     
     .toolbar {
         padding: 8px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     
     .toolbar-left h1 {
@@ -1350,6 +1380,24 @@ select {
     
     .subtitle {
         display: none;
+    }
+    
+    .toolbar-right {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .mode-group {
+        margin-right: 0;
+    }
+    
+    /* 隐藏部分按钮文字，只显示图标 */
+    .btn span {
+        display: none;
+    }
+    
+    .btn {
+        padding: 8px 12px;
     }
     
     .markdown-poster {
@@ -1361,6 +1409,50 @@ select {
     
     .poster-content {
         padding: 20px;
+    }
+    
+    /* 预览工具栏优化 */
+    .preview-panel .panel-header {
+        padding-right: 28px;
+    }
+}
+
+/* 超小屏幕 */
+@media (max-width: 480px) {
+    .toolbar-left h1 {
+        font-size: 16px;
+    }
+    
+    .app-icon {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    .editor-panel,
+    .preview-panel {
+        height: 50vh;
+        min-height: 200px;
+    }
+    
+    .markdown-poster {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    .poster-content {
+        padding: 15px;
+    }
+    
+    /* 进一步简化工具栏 */
+    .editor-tools,
+    .preview-tools {
+        gap: 2px;
+    }
+    
+    .tool-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
     }
 }
 
