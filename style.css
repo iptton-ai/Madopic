@@ -183,6 +183,9 @@ body {
     justify-content: space-between;
     align-items: center;
     background: #f8fafc;
+    flex-wrap: wrap; /* 允许标题和工具栏换行 */
+    gap: 8px; /* 换行时的间距 */
+    min-height: 56px; /* 最小高度确保单行时的高度 */
 }
 
 .panel-header h3 {
@@ -200,6 +203,8 @@ body {
     display: flex;
     gap: 4px;
     align-items: center;
+    flex-wrap: wrap; /* 允许工具按钮换行 */
+    max-width: 100%; /* 防止溢出 */
 }
 
 /* 预览工具栏特殊样式，确保与右侧工具栏对齐 */
@@ -1331,6 +1336,46 @@ select {
 
 /* 响应式设计 */
 
+/* 大屏 - 确保左右分栏各占一半 */
+@media (min-width: 1200px) {
+    .main-content {
+        flex-direction: row;
+    }
+    
+    .editor-panel,
+    .preview-panel {
+        flex: 1;
+        width: 50%;
+        max-width: 50%;
+    }
+    
+    .editor-panel {
+        border-right: 1px solid #e2e8f0;
+        border-bottom: none;
+    }
+    
+    /* 大屏工具栏优化 */
+    .editor-tools {
+        max-width: calc(100% - 150px); /* 为标题留出空间 */
+    }
+}
+
+/* 中屏优化 - 工具栏按钮可能需要换行 */
+@media (min-width: 900px) and (max-width: 1199px) {
+    .panel-header {
+        padding: 12px 20px;
+    }
+    
+    .editor-tools {
+        gap: 3px;
+    }
+    
+    .tool-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
 /* 中等屏幕及以下 - 切换为上下布局，避免预览被挤压 */
 @media (max-width: 1199px) {
     .main-content {
@@ -1415,6 +1460,32 @@ select {
     .preview-panel .panel-header {
         padding-right: 28px;
     }
+    
+    /* 编辑器面板头部优化 */
+    .panel-header {
+        padding: 10px 16px;
+    }
+    
+    .panel-header h3 {
+        font-size: 14px;
+    }
+    
+    /* 减小工具按钮尺寸 */
+    .tool-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+    }
+    
+    .editor-tools {
+        gap: 2px;
+    }
+    
+    /* 隐藏部分不常用的工具按钮 */
+    .tool-btn[data-action="pagebreak"],
+    .tool-btn[data-action="empty-line"] {
+        display: none;
+    }
 }
 
 /* 超小屏幕 */
@@ -1450,9 +1521,34 @@ select {
     }
     
     .tool-btn {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
         font-size: 12px;
+    }
+    
+    .panel-header {
+        padding: 8px 12px;
+    }
+    
+    .panel-header h3 {
+        font-size: 13px;
+        gap: 4px;
+    }
+    
+    /* 只显示最常用的编辑工具 */
+    .tool-btn[data-action="sequence"],
+    .tool-btn[data-action="gantt"],
+    .tool-btn[data-action="pie"],
+    .tool-btn[data-action="echarts"],
+    .tool-btn[data-action="physics"],
+    .tool-btn[data-action="chemistry"],
+    .tool-btn[data-action="card"] {
+        display: none;
+    }
+    
+    /* 隐藏工具分隔线以节省空间 */
+    .tool-separator {
+        display: none;
     }
 }
 
